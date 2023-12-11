@@ -72,10 +72,7 @@ int main(int argc, char** argv)
     auto* module_base = static_cast<uint8_t*>(module_info.lpBaseOfDll);
     auto module_size = module_info.SizeOfImage;
 
-    ZydisDecoder decoder;
-    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
-
-    //Change permissions so all regions can be read
+    //Change permissions so all regions can be read, usually not needed but better be safe
     auto* current_address = module_base;
     auto* end_address = current_address + module_size;
 
@@ -94,7 +91,9 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    //Now read find all function calls to figure out structs
+    //Now find all function calls to figure out structs
+    ZydisDecoder decoder;
+    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
 
     char* last_LEA_string = nullptr;
@@ -127,7 +126,7 @@ int main(int argc, char** argv)
             //We get the address of the called function to figure out what's happening
             if (ZydisCalcAbsoluteAddress(&instruction, &operands[0], reinterpret_cast<uintptr_t>(current_address), &func_addr) == ZYAN_STATUS_SUCCESS) {
 
-                //Start reading function, if it calls this functions it means it will start reading a new struct
+                //Start reading function, if it calls this function it means it will start reading a new struct
                 if (func_addr == Patterns::s_read_struct_address && last_LEA_string)
                 {
                     ResStruct new_struct;
