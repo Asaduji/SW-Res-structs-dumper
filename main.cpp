@@ -119,7 +119,7 @@ int main(int argc, char** argv)
             ZydisCalcAbsoluteAddress(&instruction, &operands[1], reinterpret_cast<uintptr_t>(current_address), reinterpret_cast<uintptr_t*>(&last_LEA_string));
         }
 
-        //We look for call immediate call instructions to detect struct reading
+        //We look for immediate call instructions to detect struct reading
         if (instruction.mnemonic == ZYDIS_MNEMONIC_CALL && operands[0].type == ZYDIS_OPERAND_TYPE_IMMEDIATE) {
 
             uintptr_t func_addr;
